@@ -94,7 +94,7 @@ function setTextures(){
         setupWebGL();
         draw(); 
     }
-    image.src = "../../../img/brickwall.png";
+    image.src = "../../img/wall.png";
      
     shaderProgram.samplerUniform = gl.getUniformLocation(shaderProgram, "uSampler");
     gl.uniform1i(shaderProgram.samplerUniform, 0);
