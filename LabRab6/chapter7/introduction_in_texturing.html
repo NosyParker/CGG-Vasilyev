@@ -31,20 +31,17 @@
       void main(void) {
         gl_FragColor = texture2D(uSampler, vTextureCoords);
       }
-</script>
+    </script>
      
-<script id="shader-vs" type="x-shader/x-vertex">
+    <script id="shader-vs" type="x-shader/x-vertex">
     attribute vec3 aVertexPosition;
-    attribute vec2 aVertexTextureCoords;
     varying vec2 vTextureCoords;
-    uniform mat4 uMVMatrix;
-      uniform mat4 uPMatrix;
+     
       void main(void) {
-        gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
-        vTextureCoords = aVertexTextureCoords;
-         
+        gl_Position = vec4(aVertexPosition, 1.0);
+        vTextureCoords = vec2(aVertexPosition.x+0.5,aVertexPosition.y+0.5);
       }
-</script>
+    </script>
 
 <script src="../../js/jquery-3.2.1.min.js" type="text/javascript"></script>
 <script src="../../js/bootstrap.min.js" type="text/javascript"></script>
