@@ -86,7 +86,7 @@ function setTextures(){
     texture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, texture);
      var image = new Image();
-     image.src = "../../img/wall.png";
+     image.src = "../../img/test.png";
     image.onload = function() {
      
         handleTextureLoaded(image, texture);
