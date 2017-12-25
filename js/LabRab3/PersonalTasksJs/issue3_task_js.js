@@ -1,10 +1,9 @@
 var gl;
 var shaderProgram;
-var vertexBuffer;
-var indexBuffer;
- 
-var texture; 
- 
+var vertexBuffer; 
+var colorBuffer; 
+var colors;
+
 function initShaders() {
     var fragmentShader = getShader(gl.FRAGMENT_SHADER, 'shader-fs');
     var vertexShader = getShader(gl.VERTEX_SHADER, 'shader-vs');
@@ -24,8 +23,10 @@ function initShaders() {
  
     shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
     gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
+    shaderProgram.vertexColorAttribute = gl.getAttribLocation(shaderProgram, "aVertexColor");
+    gl.enableVertexAttribArray(shaderProgram.vertexColorAttribute);
 }
- 
+
 function getShader(type,id) {
     var source = document.getElementById(id).innerHTML;
  
@@ -45,67 +46,54 @@ function getShader(type,id) {
  
 function initBuffers() {
  
-    var vertices =[
-                -0.5, -0.5, 0.5,
-                -0.5, 0.5, 0.5,
-                 0.5, 0.5, 0.5,
-                 0.5, -0.5, 0.5
-                 ];
- 
+var vertices = [
+         0.0,  0.5,  0.0,
+        -0.5, -0.5,  0.0,
+         0.5, -0.5,  0.0
+  ];
+
   vertexBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
   vertexBuffer.itemSize = 3;
-  
-    var indices = [0, 1, 2, 2, 3, 0];
-    indexBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
-    indexBuffer.numberOfItems = indices.length; 
+  vertexBuffer.numberOfItems = 3;
+  colors = [
+        1.0, 0.0, 0.0,
+        0.0, 0.0, 1.0,
+        0.0, 1.0, 0.0
+    ];
+
+    colors.forEach(function(value, index, array) {
+        array[index] = (Math.random() + 0.1).toFixed(1);
+      });
+    colorBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
 }
-  
 function draw() {    
- 
+     
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+     
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
     gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 
                          vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
-     
-    gl.drawElements(gl.TRIANGLES, indexBuffer.numberOfItems, gl.UNSIGNED_SHORT,0);
-     
-}
-function setupWebGL()
-{
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);  
-    gl.clear(gl.COLOR_BUFFER_BIT || gl.DEPTH_BUFFER_BIT);   
-                 
-    gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
-}
-  
-function setTextures(){
-    texture = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-     var image = new Image();
-  
-    image.onload = function() {
-     
-        handleTextureLoaded(image, texture);
-         
-        setupWebGL();
-        draw(); 
-    }
-    image.src = "/images/cube_textures/6.png";
-     
-    shaderProgram.samplerUniform = gl.getUniformLocation(shaderProgram, "uSampler");
-    gl.uniform1i(shaderProgram.samplerUniform, 0);
-}
- function handleTextureLoaded(image, texture) {
  
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+    gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, 
+                        vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
+     
+    gl.drawArrays(gl.TRIANGLES, 0, vertexBuffer.numberOfItems);
 }
+
+
+function changeVertexColorAndDraw(){
+    initBuffers();   
+    draw();
+}
+
+
 window.onload=function(){
  
     var canvas = document.getElementById("canvas3D");
@@ -120,10 +108,13 @@ window.onload=function(){
     if(gl){
         gl.viewportWidth = canvas.width;
         gl.viewportHeight = canvas.height;
- 
-        initShaders();
-        initBuffers();
          
-        setTextures();  
+        initShaders();
+ 
+        initBuffers();
+ 
+        draw();
+        
+        document.getElementById("changeColor").addEventListener("click", changeVertexColorAndDraw)   
     }
 }
